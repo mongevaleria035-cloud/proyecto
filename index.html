@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IA o Realidad - ISFT 244</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0f172a">
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --card-bg: #1e293b;
+            --neon-blue: #38bdf8;
+            --neon-green: #4ade80;
+            --neon-pink: #f43f5e;
+            --text-light: #f8fafc;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 15px;
+            overflow-x: hidden;
+        }
+
+        .screen {
+            display: none;
+            width: 100%;
+            max-width: 450px;
+            animation: fadeIn 0.3s ease-in-out;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Encabezados y Logos */
+        .header-box {
+            text-align: center;
+            margin-bottom: 20px;
+            background: linear-gradient(145deg, #1e293b, #0f172a);
+            padding: 15px;
+            border-radius: 15px;
+            border: 1px solid var(--neon-blue);
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
+            width: 100%;
+        }
+
+        .logo {
+            max-width: 90px;
+            height: auto;
+            margin-bottom: 10px;
+        }
+
+        h1 { color: var(--neon-blue); font-size: 1.4rem; margin-bottom: 5px; }
+        h2 { font-size: 1.1rem; opacity: 0.9; margin-bottom: 4px; }
+        .authors { font-size: 0.8rem; opacity: 0.7; font-style: italic; margin-top: 5px; }
+
+        /* Inputs y Botones Grandes para celular */
+        input[type="text"] {
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            border: 2px solid var(--neon-blue);
+            background-color: #1e293b;
+            color: white;
+            font-size: 1.1rem;
+            text-align: center;
+            margin: 20px 0;
+            outline: none;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 18px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: transform 0.1s, box-shadow 0.2s;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        .btn:active { transform: scale(0.97); }
+        .btn-blue { background-color: var(--neon-blue); color: #000; }
+        .btn-green { background-color: var(--neon-green); color: #000; }
+        .btn-pink { background-color: var(--neon-pink); color: white; }
+
+        /* Área de Juego */
+        .info-panel {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            padding: 10px;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
+        .image-container {
+            width: 100%;
+            height: 320px;
+            border-radius: 15px;
+            overflow: hidden;
+            border: 2px solid #334155;
+            margin: 15px 0;
+            background-color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .game-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .feedback-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: bold;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+            border-radius: 13px;
+        }
+
+        .feedback-correct { background: rgba(74, 222, 128, 0.9); color: black; opacity: 1; }
+        .feedback-incorrect { background: rgba(244, 63, 94, 0.9); color: white; opacity: 1; }
+
+        /* Resultados y Captura */
+        .results-card {
+            background-color: var(--card-bg);
+            border: 2px solid var(--neon-blue);
+            border-radius: 20px;
+            padding: 20px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.3);
+            margin-bottom: 20px;
+        }
+
+        .score-big {
+            font-size: 3rem;
+            color: var(--neon-green);
+            margin: 15px 0;
+            font-weight: 800;
+        }
+
+        .conclusion-text {
+            font-size: 1.05rem;
+            line-height: 1.5;
+            margin: 15px 0;
+            padding: 10px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+        }
+
+        .share-section {
+            background: linear-gradient(135deg, #1e1b4b, #311042);
+            border: 1px dashed var(--neon-pink);
+            border-radius: 15px;
+            padding: 15px;
+            width: 100%;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .share-badge {
+            font-size: 0.85rem;
+            color: #fda4af;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="screen-welcome" class="screen active">
+        <div class="header-box">
+            <img src="logo.png" alt="Logo ISFT 244" class="logo" onerror="this.style.display='none'">
+            <h1>ISFT N° 244</h1>
+            <h2>Ciencia de Datos e IA (1° Año)</h2>
+            <p class="authors">Por: Angelina Monge, Laura Cubilla y Valeria Monge</p>
+        </div>
+
+        <p style="text-align: center; margin-top: 10px;">¿Podés diferenciar un render de IA de una fotografía real? ¡Ponete a prueba!</p>
+        
+        <input type="text" id="player-name" placeholder="Ingresá tu nombre" maxlength="15" autocomplete="off">
+        <button class="btn btn-blue" onclick="startGame()">Comenzar Desafío</button>
+    </div>
+
+    <div id="screen-game" class="screen">
+        <div class="info-panel">
+            <span id="display-level" style="color: var(--neon-blue);">NIVEL 1: FÁCIL</span>
+            <span id="display-progress">1 / 5</span>
+        </div>
+        
+        <div class="image-container">
+            <img id="current-image" src="" alt="Desafío" class="game-img">
+            <div id="feedback" class="feedback-overlay"></div>
+        </div>
+
+        <div style="width: 100%; display: flex; gap: 15px;">
+            <button class="btn btn-green" onclick="submitAnswer('real')">REAL</button>
+            <button class="btn btn-pink" onclick="submitAnswer('ia')">IA</button>
+        </div>
+        <p id="player-encouragement" style="text-align: center; font-size: 0.95rem; font-style: italic; opacity: 0.8;"></p>
+    </div>
+
+    <div id="screen-results" class="screen">
+        <div id="capture-area" class="results-card">
+            <span style="font-size: 0.8rem; color: var(--neon-blue); font-weight: bold;">CIENCIA DE DATOS E IA - ISFT 244</span>
+            <h2 id="result-greeting" style="margin-top: 10px;">¡Gran trabajo!</h2>
+            <p>Tu puntuación final fue de:</p>
+            <div id="score-text" class="score-big">0 / 10</div>
+            <p id="stats-detail" style="font-size: 0.9rem; opacity: 0.8;"></p>
+            <div id="conclusion" class="conclusion-text"></div>
+        </div>
+
+        <div class="share-section">
+            <div class="share-badge">⚡ ¡Presumí tu Ojo Clínico!</div>
+            <p style="font-size: 0.9rem; opacity: 0.9;">¡Sacale una <b>Captura de Pantalla</b> a tus resultados para compartirla o mostrarla en los stands!</p>
+        </div>
+
+        <button class="btn btn-blue" onclick="restartGame()">Jugar de Nuevo</button>
+    </div>
+
+    <script>
+        // Base de datos de imágenes basada en tus archivos provistos
+        // tipo: 'ia' o 'real'
+        const dataset = {
+            1: [ // Nivel 1: Fácil
+                { src: '1nia1.jpg', type: 'ia' },
+                { src: '2nia1.jpg', type: 'ia' },
+                { src: '3nia1.webp', type: 'ia' },
+                { src: '4nr1.jpg', type: 'real' },
+                { src: '5nr1.jpg', type: 'real' }
+            ],
+            2: [ // Nivel 2: Difícil
+                { src: '1nr2.jpg', type: 'real' },
+                { src: '2nr2.jpg', type: 'real' },
+                { src: '3nr2.jpg', type: 'real' },
+                { src: '4nia2.png', type: 'ia' },
+                { src: '5nia2.png', type: 'ia' }
+            ]
+        };
+
+        let playerName = "";
+        let currentLevel = 1;
+        let currentImgIndex = 0;
+        let score = 0;
+        let lvl1Correct = 0;
+        let lvl2Correct = 0;
+
+        const phrases = [
+            "¡Concentración total!", "¡Vos podés!", "Mirá bien los detalles...", 
+            "¿Notas algo raro?", "¡Seguí así!", "¡Estás afinando el ojo!"
+        ];
+
+        function changeScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        function startGame() {
+            const nameInput = document.getElementById('player-name').value.trim();
+            playerName = nameInput || "Visitante";
+            
+            // Reset de variables
+            currentLevel = 1;
+            currentImgIndex = 0;
+            score = 0;
+            lvl1Correct = 0;
+            lvl2Correct = 0;
+
+            loadQuestion();
+            changeScreen('screen-game');
+        }
+
+        function loadQuestion() {
+            const currentItem = dataset[currentLevel][currentImgIndex];
+            
+            document.getElementById('display-level').innerText = `NIVEL ${currentLevel}: ${currentLevel === 1 ? 'FÁCIL' : 'DIFÍCIL'}`;
+            document.getElementById('display-level').style.color = currentLevel === 1 ? 'var(--neon-blue)' : 'var(--neon-pink)';
+            document.getElementById('display-progress').innerText = `${currentImgIndex + 1} / 5`;
+            
+            const imgElement = document.getElementById('current-image');
+            imgElement.src = currentItem.src;
+
+            // Frase de aliento aleatoria con el nombre del usuario
+            const randomPhrase = phrases[Math.floor(Math.random() * phrases.length)];
+            document.getElementById('player-encouragement').innerText = `¡${playerName}! ${randomPhrase}`;
+        }
+
+        function submitAnswer(chosenType) {
+            const currentItem = dataset[currentLevel][currentImgIndex];
+            const feedbackDiv = document.getElementById('feedback');
+            
+            // Deshabilitar clicks temporales para evitar doble toque
+            feedbackDiv.parentElement.style.pointerEvents = 'none';
+
+            if (chosenType === currentItem.type) {
+                score++;
+                if (currentLevel === 1) lvl1Correct++; else lvl2Correct++;
+                feedbackDiv.innerText = "¡CORRECTO!";
+                feedbackDiv.className = "feedback-overlay feedback-correct";
+            } else {
+                feedbackDiv.innerText = "INCORRECTO";
+                feedbackDiv.className = "feedback-overlay feedback-incorrect";
+            }
+
+            // Pausa breve de medio segundo para ver el acierto/error y pasar rápido
+            setTimeout(() => {
+                feedbackDiv.className = "feedback-overlay";
+                feedbackDiv.parentElement.style.pointerEvents = 'auto';
+                nextQuestion();
+            }, 600);
+        }
+
+        function nextQuestion() {
+            currentImgIndex++;
+            if (currentImgIndex < 5) {
+                loadQuestion();
+            } else if (currentLevel === 1) {
+                // Al terminar nivel 1, pasa automáticamente al nivel 2
+                currentLevel = 2;
+                currentImgIndex = 0;
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            document.getElementById('result-greeting').innerText = `¡Buen intento, ${playerName}!`;
+            document.getElementById('score-text').innerText = `${score} / 10`;
+            document.getElementById('stats-detail').innerText = `Nivel Fácil: ${lvl1Correct}/5 | Nivel Difícil: ${lvl2Correct}/5`;
+            
+            let conclusion = "";
+            if (score === 10) {
+                conclusion = "¡Excelente! Tenés una percepción impecable. Detectaste perfectamente las texturas de la piel y las inconsistencias de la iluminación sintética generada por redes generativas.";
+            } else if (score >= 7) {
+                conclusion = "¡Muy buen puntaje! Lográs diferenciar la mayoría de los detalles complejos, aunque las IA avanzadas lograron engañarte en las pruebas más difíciles.";
+            } else if (score >= 4) {
+                conclusion = "¡Buen rendimiento! Encontraste varios patrones, pero la tecnología actual genera imágenes que desafían constantemente nuestra noción de lo que es real.";
+            } else {
+                conclusion = "¡Las IA te engañaron por completo! No te preocupes, están diseñadas matemáticamente para replicar la realidad a la perfección. ¡Unite a nosotros en Ciencia de Datos para descubrir cómo funcionan!";
+            }
+            
+            document.getElementById('conclusion').innerText = conclusion;
+            changeScreen('screen-results');
+        }
+
+        function restartGame() {
+            document.getElementById('player-name').value = "";
+            changeScreen('screen-welcome');
+        }
+
+        // Registro del Service Worker para el soporte Offline PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('service-worker.js')
+                    .then(reg => console.log('PWA lista para funcionar sin internet.'))
+                    .catch(err => console.log('Error al registrar Service Worker:', err));
+            });
+        }
+    </script>
+</body>
+</html>

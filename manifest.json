@@ -1,0 +1,16 @@
+{
+  "short_name": "IA o Real",
+  "name": "Juego Interactivo - Feria ISFT 244",
+  "icons": [
+    {
+      "src": "logo.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    }
+  ],
+  "start_url": "./index.html",
+  "background_color": "#0f172a",
+  "theme-color": "#0f172a",
+  "display": "standalone",
+  "orientation": "portrait"
+}
