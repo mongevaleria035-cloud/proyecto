@@ -255,9 +255,12 @@
 
         <button class="btn btn-blue" onclick="restartGame()">Jugar de Nuevo</button>
     </div>
-
+<script src=https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
     <script>
-        // Base de datos de imágenes basada en tus archivos provistos
+        //  conexion con nuestra base de datos de supabase 
+    const SUPABASE_URL = 'https://zoxhfwbsqecgfhfzxfgc.supabase.co'
+    const SUPABASE_KEY = 'sb_publishable_ki0tP66vvXjtZ9nAudCEDmA. . . ';
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         // tipo: 'ia' o 'real'
         const dataset = {
             1: [ // Nivel 1: Fácil
@@ -394,6 +397,20 @@
                     .then(reg => console.log('PWA lista para funcionar sin internet.'))
                     .catch(err => console.log('Error al registrar Service Worker:', err));
             });
+        }
+    // funcion para mandar los puntos a Supabase
+    async function guardarPuntajeEnBD(nombrejugador, puntajeFinal){
+    const { data, error } = await supabase
+     .from('puntajes')
+        .insert([
+            { nombre: nombreJugador, puntaje: parseInt(puntajeFinal) }
+        ]);
+
+        if (error) {
+            console.error('Error al guardar en Supabase:', error);
+         } else {
+            console.log('¡Puntaje guardado con éxisto!');
+          }
         }
     </script>
 </body>
