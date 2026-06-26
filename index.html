@@ -399,7 +399,7 @@
             });
         }
     // funcion para mandar los puntos a Supabase
-    async function guardarPuntajeEnBD(nombrejugador, puntajeFinal){
+    async function guardarPuntajeEnBD(nombreJugador, puntajeFinal){
     const { data, error } = await supabase
      .from('puntajes')
         .insert([
